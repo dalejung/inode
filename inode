@@ -1,2 +1,3 @@
 #!/bin/sh
-node ./src/inode.js
+SCRIPTPATH=$(dirname $0)
+node $SCRIPTPATH/src/inode.js
