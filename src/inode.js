@@ -52,7 +52,7 @@ function inner_eval(code, context, file) {
     }
   }
   // normal eval
-  if (!context) {
+  if (context === global) {
     result = vm.runInThisContext(code, file);
   } else {
     result = vm.runInContext(code, context, file);
@@ -76,10 +76,45 @@ function inode_eval(code, context, file, cb) {
   }
 }
 
-var r = repl.start({
-  prompt: ">>> ",
-  eval: inode_eval, 
-  input: process.stdin,
-  output: process.stdout, 
-  useGlobal: false
-});
+// Keep track of repl kernels
+repl_kernels = {}
+
+net.createServer(function (socket) {
+  var r = repl.start({
+    prompt: ">>> ",
+    eval: inode_eval, 
+    input: socket,
+    output: socket, 
+    useGlobal: false,
+    terminal: true
+  });
+
+  r.on('exit', function () {
+    delete repl_kernels[r.name]
+    socket.end()
+  })
+  var name = socket.remoteAddress+':'+socket.remotePort
+  
+  r.context.socket = socket
+  r.context.run = run
+  r.name = name
+  repl_kernels[r.name] = r
+
+}).listen(1337)
+
+var http = require('http');
+http.createServer(function (req, res) {
+  // for now default to first one
+  // eventually have the ability for target /kernel_name
+  var r = repl_kernels[Object.keys(repl_kernels)[0]]
+
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  if (r.context._http_callback) {
+    html = r.context._http_callback();
+  } else {
+    html = "_http_callback not set";
+  }
+  res.write(html);
+  res.end();
+}).listen(8889);
+  
