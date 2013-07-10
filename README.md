@@ -18,7 +18,7 @@ It differs from `require` in the following ways:
 * The file will execute in shell and it's namespace will be merged into `global`.
 * The executions will not cache. Each call will re-execute the script.
 
-## Tip
+## Tips
 
 Place the following in your `.vimrc`
 ```
@@ -26,3 +26,9 @@ autocmd FileType javascript map <buffer> <S-r> :w<CR>:!tmux send-keys -t inode "
 ```
 
 Pressing `Shift + R` while editing a `.js` file in `vim` will execute the file in a tmux session named `inode`.
+
+## Future Plans
+
+Not a clue. Just installed `node.js` last night.
+
+* `ls`, `pwd`, `cd`, etc filesystem magics
