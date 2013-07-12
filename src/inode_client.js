@@ -10,14 +10,13 @@ sock.on('connect', function () {
 })
  
 sock.on('close', function done () {
-  process.stdin.setRawMode(false)
-  process.stdin.pause()
   sock.removeListener('close', done)
 })
  
 process.stdin.on('end', function () {
+  process.stdin.setRawMode(false)
+  process.stdin.pause()
   sock.destroy()
-  console.log()
 })
  
 process.stdin.on('data', function (b) {
