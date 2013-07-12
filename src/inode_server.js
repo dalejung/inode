@@ -101,6 +101,13 @@ net.createServer(function (socket) {
 }).listen(1337)
 
 var http = require('http');
+var default_callback = function() {
+  if (typeof(d3) != 'undefined') {
+    return d3.select('html')[0][0].innerHTML;
+  }
+  return 'no handler set';
+};
+
 http.createServer(function (req, res) {
   // for now default to first one
   // eventually have the ability for target /kernel_name
@@ -110,7 +117,7 @@ http.createServer(function (req, res) {
   if (r.context._http_callback) {
     html = r.context._http_callback();
   } else {
-    html = "_http_callback not set";
+    html = default_callback();
   }
   res.write(html);
   res.end();
