@@ -9,7 +9,6 @@ var runInNewContext = Script.runInNewContext;
 
 // need this for our relative import to work
 module.filename = path.resolve('inode');
-console.log(module.filename);
 
 var run = function(file, global_ns) {
   /*
@@ -103,10 +102,7 @@ net.createServer(function (socket) {
   // like modify d3.csv to import locally and setup
   // global vars expected to exist in browser
   try {
-    premod = require('./inode_premod.js')
-    for (var name in premod) {
-      r.context[name] = premod[name];
-    }
+    run('./inode_premod.js', r.context)
   } 
   catch (err) {
   }
