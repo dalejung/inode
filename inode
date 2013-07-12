@@ -1,6 +1,6 @@
 #!/bin/sh
 SCRIPTPATH=$(dirname $0)
-node $SCRIPTPATH/src/inode_server.js > /dev/null 2>&1 &
+node $SCRIPTPATH/src/inode_server.js  &
 sleep 1
 node $SCRIPTPATH/src/inode_client.js
 # kill background node
