@@ -7,6 +7,10 @@ var vm = require('vm')
 var Script = process.binding('evals').NodeScript;
 var runInNewContext = Script.runInNewContext;
 
+// need this for our relative import to work
+module.filename = path.resolve('inode');
+console.log(module.filename);
+
 var run = function(file, global_ns) {
   /*
    * Runs a file and then add variables to global scope. 
@@ -95,6 +99,17 @@ net.createServer(function (socket) {
   
   r.context.socket = socket
   r.context.run = run
+  // Allow a inode pre hook. This allows us to do things
+  // like modify d3.csv to import locally and setup
+  // global vars expected to exist in browser
+  try {
+    premod = require('./inode_premod.js')
+    for (var name in premod) {
+      r.context[name] = premod[name];
+    }
+  } 
+  catch (err) {
+  }
   r.name = name
   repl_kernels[r.name] = r
 
@@ -122,4 +137,3 @@ http.createServer(function (req, res) {
   res.write(html);
   res.end();
 }).listen(8889);
-  
