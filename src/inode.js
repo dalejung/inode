@@ -9,7 +9,7 @@ var runInNewContext = Script.runInNewContext;
 
 var run = function(file, global_ns) {
   /*
-   * Runs a file and then adds variables to global scope. 
+   * Runs a file and then add variables to global scope. 
    *
    * Akin to %run for ipython
    */
@@ -25,11 +25,9 @@ var run = function(file, global_ns) {
   for (var k in global_ns) {
     sandbox[k] = global_ns[k];
   }
-  sandbox.require = require;
-  sandbox.exports = module.exports;
+
   sandbox.__filename = filename;
   sandbox.__dirname = dirname;
-  sandbox.module = module;
   sandbox.global_ns = sandbox;
 
   runInNewContext(content, sandbox, filename, 0, true);
