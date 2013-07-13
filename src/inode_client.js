@@ -11,11 +11,11 @@ sock.on('connect', function () {
  
 sock.on('close', function done () {
   sock.removeListener('close', done)
+  process.stdin.pause()
 })
  
 process.stdin.on('end', function () {
   process.stdin.setRawMode(false)
-  process.stdin.pause()
   sock.destroy()
 })
  
