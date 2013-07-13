@@ -53,6 +53,28 @@ When you start up `inode`, the kernel will also startup a webserver hosted at po
 
 The server will also act like a normal webserver for pathed urls. The webroot will be the `inode` startup directory. So if you started up inode in its `demo` directory, `http://localhost:8889/brush/brush.html' would show you the Brush demo. 
 
+------
+
+# Brush Demo
+
+```javascript
+%run ./brush.html
+
+var data = focus.select('path').datum()
+var l = [data[10].date, data[25].date]
+brush.extent(l)
+brushed()
+// redraw the extent rect
+var ex = x2(l[0]);
+var width = x2(l[1]) - ex;
+var extent = context.select('g.x.brush rect.extent');
+extent.attr('x', ex);
+extent.attr('width', width);
+```
+This run the vanilla [brush demo](http://bl.ocks.org/mbostock/1667367). It then modifies the brush extent and calls the handler that modifies the top chart. It also redraws the rect which is not handled by `brush`. 
+
+![Brushed chart](brush_after.png)
+
 ## Tips
 
 Place the following in your `.vimrc`
