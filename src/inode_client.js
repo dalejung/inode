@@ -10,18 +10,18 @@ sock.on('connect', function () {
 })
  
 sock.on('close', function done () {
-  sock.removeListener('close', done)
+  process.stdin.setRawMode(false)
   process.stdin.pause()
+  sock.removeListener('close', done)
 })
  
 process.stdin.on('end', function () {
-  process.stdin.setRawMode(false)
   sock.destroy()
 })
  
 process.stdin.on('data', function (b) {
   if (b.length === 1 && b[0] === 4) {
-    process.stdin.emit('end')
+    //process.stdin.emit('end')
   }
 })
 
