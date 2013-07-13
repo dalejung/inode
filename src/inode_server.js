@@ -119,7 +119,44 @@ var default_callback = function() {
   return 'no handler set';
 };
 
-http.createServer(function (req, res) {
+var port = 8889;
+var url = require("url");
+
+http.createServer(function(request, response) {
+
+  var uri = url.parse(request.url).pathname
+    , filename = path.join(process.cwd(), uri);
+
+  if (uri == '/') {
+    return inode_base_handler(request, response)
+  }
+
+  fs.exists(filename, function(exists) {
+    if(!exists) {
+      response.writeHead(404, {"Content-Type": "text/plain"});
+      response.write("404 Not Found\n");
+      response.end();
+      return;
+    }
+
+    if (fs.statSync(filename).isDirectory()) filename += '/index.html';
+
+    fs.readFile(filename, "binary", function(err, file) {
+      if(err) {        
+        response.writeHead(500, {"Content-Type": "text/plain"});
+        response.write(err + "\n");
+        response.end();
+        return;
+      }
+
+      response.writeHead(200);
+      response.write(file, "binary");
+      response.end();
+    });
+  });
+}).listen(parseInt(port, 10));
+
+function inode_base_handler(req, res) {
   // for now default to first one
   // eventually have the ability for target /kernel_name
   var r = repl_kernels[Object.keys(repl_kernels)[0]]
@@ -132,4 +169,4 @@ http.createServer(function (req, res) {
   }
   res.write(html);
   res.end();
-}).listen(8889);
+}
