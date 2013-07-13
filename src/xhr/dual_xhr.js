@@ -1,5 +1,6 @@
 var xmlhttp  = require("xmlhttprequest");   
+var xhr_local = require('./xhr_local.js')
 
-module.exports.XMLHttpRequest = function XMLHttpRequest() {
-  // create xml that calls regular xhr for any url prefixed with a remote
-}
+var XMLHttpRequest = xhr_local.XMLHttpRequest
+
+module.exports.XMLHttpRequest = XMLHttpRequest

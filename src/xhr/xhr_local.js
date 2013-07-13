@@ -22,7 +22,6 @@ module.exports.XMLHttpRequest = function XMLHttpRequest() {
   function read() {
     fs.readFile(info.url, "binary", function(e, d) {
       if (e) {
-console.log(e);
         self.status = 404; // assumed
       } else {
         self.status = 200;

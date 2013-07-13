@@ -4,41 +4,7 @@ var fs = require('fs')
 var path = require('path')
 var vm = require('vm')
 
-var Script = process.binding('evals').NodeScript;
-var runInNewContext = Script.runInNewContext;
-
-// need this for our relative import to work
-module.filename = path.resolve('inode');
-
-var run = function(file, global_ns) {
-  /*
-   * Runs a file and then add variables to global scope. 
-   *
-   * Akin to %run for ipython
-   */
-  var filename = require.resolve(file);
-  var content = fs.readFileSync(filename, 'utf8');
-  var dirname = path.dirname(filename);
-
-  if (!global_ns) {
-    global_ns = eval('global');
-  }
-
-  var sandbox = {};
-  for (var k in global_ns) {
-    sandbox[k] = global_ns[k];
-  }
-
-  sandbox.__filename = filename;
-  sandbox.__dirname = dirname;
-  sandbox.global_ns = sandbox;
-
-  runInNewContext(content, sandbox, filename, 0, true);
-  // TODO: Should this be more restrictive?
-  for (var k in sandbox) {
-    global_ns[k] = sandbox[k];
-  }
-}
+var run_magic = require('./run_magic.js');
 
 function inner_eval(code, context, file) {
   // search for magic functions
@@ -48,7 +14,7 @@ function inner_eval(code, context, file) {
     var bits = bare_code.split(' ');
     // %run magic
     if (bits[0] == '%run') {
-      result = run(bits[1], context)
+      result = run_magic.run(bits[1], context)
       return result
     }
   }
@@ -96,15 +62,17 @@ net.createServer(function (socket) {
   })
   var name = socket.remoteAddress+':'+socket.remotePort
   
-  r.context.socket = socket
-  r.context.run = run
+  r.context.socket = socket;
+  r.context.r = r;
+  r.context.run = function(file) { return run_magic.run(file, r.context) }
   // Allow a inode pre hook. This allows us to do things
   // like modify d3.csv to import locally and setup
   // global vars expected to exist in browser
   try {
-    run('./inode_premod.js', r.context)
+    run_magic.run('./inode_premod.js', r.context)
   } 
   catch (err) {
+    console.log(err);
   }
   r.name = name
   repl_kernels[r.name] = r
