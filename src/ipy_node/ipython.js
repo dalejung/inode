@@ -1,28 +1,41 @@
+/*
+ * Creates an the baseline IPython namespace. 
+ *
+ * Files included:
+ *    namespace.js
+ *    utils.js
+ *    kernel.js
+ *
+ * Exports
+ *  IPython
+ */ 
 var Contextify = require('contextify');
 var fs = require('fs');
 
-function combine_scripts(base_dir, scripts) {
-  var contents = []
-  for (var i = 0; i < scripts.length; i++) {
+IPYTHON_SCRIPTS = ['namespace.js', 'utils.js', 'kernel.js'];
+
+function import_ipython(context, scripts, base_dir) {
+  /*
+   * Run ipython scripts in Contextify context. 
+   * This is to support how IPython namespaces, 
+   * which requires shared global scope across scripts
+   */
+  base_dir = base_dir ? base_dir : process.env.IPYTHON_DIR
+
+  for (var i=0; i < scripts.length; i++) {
     var script = base_dir + '/' +scripts[i];
     var filename = require.resolve(script);
     var content = fs.readFileSync(filename, 'utf8');
-    contents.push(content);
+    context.run(content);
   }
-  var combined = contents.join('\n');
-  return combined;
 }
 
-function ipython_js(ipython_dir) {
- 
-  ipython_dir = ipython_dir ? ipython_dir : process.env.IPYTHON_DIR
-  ipython_dir = ipython_dir ? ipython_dir : '.'
-
-  ipython_scripts = ['namespace.js', 'utils.js', 'kernel.js'];
-  combined = combine_scripts(ipython_dir, ipython_scripts);
-  return combined
-}
-
+/*
+ * IPython requires the following externalities:
+ *  jquery
+ *  `document.cookies`
+ *  WebSocket
+ */
 var $ = require('jquery').create();
 // kernel needs document var for document.cookies
 window = $('html').parent().get(0).parentWindow
@@ -37,10 +50,7 @@ var sandbox = {
 };
 
 Contextify(sandbox);
-// run the minimal ipython
-combined = ipython_js();
-sandbox.run(combined);
-
+import_ipython(sandbox, IPYTHON_SCRIPTS);
 IPython = sandbox.IPython;
 
 module.exports.IPython = IPython
