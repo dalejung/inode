@@ -58,3 +58,7 @@ IPythonBridge.prototype.execute_buffer = function() {
     self.execute(code);
   }
 }
+
+IPythonBridge.prototype.__repr__ = function() {
+  return 'IPython Bridge';
+}

@@ -4,6 +4,7 @@ var fs = require('fs')
 var path = require('path')
 var vm = require('vm')
 
+var repr = require('./repr.js').repr
 var run_magic = require('./run_magic.js');
 
 function inner_eval(code, context, file) {
@@ -53,7 +54,8 @@ net.createServer(function (socket) {
     input: socket,
     output: socket, 
     useGlobal: false,
-    terminal: true
+    terminal: true, 
+    writer : repr
   });
 
   r.on('exit', function () {
