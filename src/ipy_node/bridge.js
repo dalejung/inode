@@ -1,47 +1,8 @@
-var Contextify = require('contextify');
-var fs = require('fs');
+var IPython = require('./ipython').IPython
 
-function combine_scripts(base_dir, scripts) {
-  var contents = []
-  for (var i = 0; i < scripts.length; i++) {
-    var script = base_dir + '/' +scripts[i];
-    var filename = require.resolve(script);
-    var content = fs.readFileSync(filename, 'utf8');
-    contents.push(content);
-  }
-  var combined = contents.join('\n');
-  return combined;
+module.exports.ipy_kernel = function (base_url, notebook_id) {
+  return new IPythonBridge(base_url, notebook_id);
 }
-
-function ipython_js(ipython_dir) {
- 
-  ipython_dir = ipython_dir ? ipython_dir : process.env.IPYTHON_DIR
-  ipython_dir = ipython_dir ? ipython_dir : '.'
-
-  ipython_scripts = ['namespace.js', 'utils.js', 'kernel.js'];
-  combined = combine_scripts(ipython_dir, ipython_scripts);
-  return combined
-}
-
-var $ = require('jquery').create();
-// kernel needs document var for document.cookies
-window = $('html').parent().get(0).parentWindow
-document = window.document
-var WebSocket = require('ws');
-var sandbox = { 
-  console : console, 
-  $ : $, 
-  WebSocket : WebSocket, 
-  setTimeout : setTimeout,
-  document : document,
-};
-
-Contextify(sandbox);
-// run the minimal ipython
-combined = ipython_js();
-sandbox.run(combined);
-
-IPython = sandbox.IPython;
 
 handle_stuff = function(tag) {
   return function(content) {
@@ -69,7 +30,8 @@ var IPythonBridge = function(base_url, notebook_id) {
   self.kernel_ready = false;
   self.check_kernel();
   self.command_buffer = [];
-
+  self.window = window;
+  self.document = document;
 }
 
 IPythonBridge.prototype.check_kernel = function() {
@@ -102,8 +64,4 @@ IPythonBridge.prototype.execute_buffer = function() {
     var code = self.command_buffer.pop();
     self.execute(code);
   }
-}
-
-module.exports.ipy_kernel = function (base_url, notebook_id) {
-  return new IPythonBridge(base_url, notebook_id);
 }
