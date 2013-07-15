@@ -73,7 +73,7 @@ extent.attr('width', width);
 ```
 This run the vanilla [brush demo](http://bl.ocks.org/mbostock/1667367). It then modifies the brush extent and calls the handler that modifies the top chart. It also redraws the rect which is not handled by `brushed()`. 
 
-![Brushed chart](brush_after.png)
+![Brushed chart](doc/brush_after.png)
 
 ## Tips
 
