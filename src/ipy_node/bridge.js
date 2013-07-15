@@ -1,28 +1,11 @@
 var IPython = require('./ipython').IPython
+var default_callbacks = require('./callbacks.js').default_callbacks
 
 module.exports.ipy_kernel = function (base_url, notebook_id) {
   return new IPythonBridge(base_url, notebook_id);
 }
 
-handle_stuff = function(tag) {
-  return function(content) {
-    console.log(tag, content);
-  }
-}
-
-handle_output = function (msg_type, content) {
-  global.content = content
-  console.log(msg_type)
-}
-
-var callbacks = {
-    'execute_reply': handle_stuff('exec'),
-    'output': handle_output,
-    'clear_output': handle_stuff('clear'),
-    'set_next_input': handle_stuff('setnext')
-};
-
-var IPythonBridge = function(base_url, notebook_id) {
+var IPythonBridge = function(base_url, notebook_id, callbacks) {
   var self = this;
 
   self.kernel = new IPython.Kernel(base_url, 'kernels');
@@ -32,6 +15,9 @@ var IPythonBridge = function(base_url, notebook_id) {
   self.command_buffer = [];
   self.window = window;
   self.document = document;
+
+  callbacks = callbacks ? callbacks : default_callbacks
+  self.callbacks = callbacks
 }
 
 IPythonBridge.prototype.check_kernel = function() {
@@ -44,9 +30,16 @@ IPythonBridge.prototype.check_kernel = function() {
   }
 }
 
-IPythonBridge.prototype.execute = function(code) {
+IPythonBridge.prototype._execute = function(code, callbacks) {
+  if (typeof callbacks == 'undefined') {
+    callbacks = this.callbacks;
+  }
+  return this.kernel.execute(code, callbacks, {'silent':false});
+}
+
+IPythonBridge.prototype.execute = function(code, callbacks) {
   if (this.kernel_ready) {
-    return this.kernel.execute(code, callbacks, {'silent':false});
+    return this._execute(code, callbacks);
   }
   else {
     this.command_buffer.push(code);      
