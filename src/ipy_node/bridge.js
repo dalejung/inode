@@ -8,6 +8,8 @@ module.exports.ipy_kernel = function (base_url, notebook_id) {
 var IPythonBridge = function(base_url, notebook_id, callbacks) {
   var self = this;
 
+  self.base_url = base_url;
+  self.notebook_id = notebook_id;
   self.kernel = new IPython.Kernel(base_url, 'kernels');
   self.kernel.start(notebook_id);
   self.kernel_ready = false;
@@ -60,5 +62,5 @@ IPythonBridge.prototype.execute_buffer = function() {
 }
 
 IPythonBridge.prototype.__repr__ = function() {
-  return 'IPython Bridge';
+  return 'IPython Bridge \nbase_url='+this.base_url+"\nnotebook_id="+this.notebook_id;
 }
