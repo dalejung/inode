@@ -1,48 +1,10 @@
-var repl = require('repl')
+var repl = require('./inode_repl.js')
 var net = require('net')
 var fs = require('fs')
 var path = require('path')
-var vm = require('vm')
 
 var repr = require('./repr.js').repr
-var run_magic = require('./run_magic.js');
-
-function inner_eval(code, context, file) {
-  // search for magic functions
-  if (code.search('%') == 1) {
-    // remove parens and newline
-    var bare_code = code.substr(1, code.length-3)
-    var bits = bare_code.split(' ');
-    // %run magic
-    if (bits[0] == '%run') {
-      result = run_magic.run(bits[1], context)
-      return result
-    }
-  }
-  // normal eval
-  if (context === global) {
-    result = vm.runInThisContext(code, file);
-  } else {
-    result = vm.runInContext(code, context, file);
-  }
-  return result;
-}
-
-function inode_eval(code, context, file, cb) {
-  var err, result;
-  try {
-    result = inner_eval(code, context, file);
-  } catch (e) {
-    err = e;
-  }
-  if (err && process.domain && !isSyntaxError(err)) {
-    process.domain.emit('error', err);
-    process.domain.exit();
-  }
-  else {
-    cb(err, result);
-  }
-}
+var run_magic = require('./magic/run_magic.js');
 
 // Keep track of repl kernels
 repl_kernels = {}
@@ -50,13 +12,14 @@ repl_kernels = {}
 net.createServer(function (socket) {
   var r = repl.start({
     prompt: ">>> ",
-    eval: inode_eval, 
     input: socket,
     output: socket, 
     useGlobal: false,
     terminal: true, 
     writer : repr
   });
+
+  r.install_magic(run_magic);
 
   r.on('exit', function () {
     delete repl_kernels[r.name]
@@ -89,14 +52,16 @@ var default_callback = function() {
   return 'no handler set';
 };
 
+/*
+ * Start up an httpserver to get access to internal dom vars
+ */
 var port = 8889;
 var url = require("url");
-
 http.createServer(function(request, response) {
-
   var uri = url.parse(request.url).pathname
     , filename = path.join(process.cwd(), uri);
 
+  // Grab the internal dom for '/'
   if (uri == '/') {
     return inode_base_handler(request, response)
   }

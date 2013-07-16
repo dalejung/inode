@@ -1,12 +1,24 @@
-var fs = require('fs')
-var path = require('path')
-var html = require('./html.js')
+var fs = require('fs');
+var path = require('path');
+var html = require('../html.js');
+var magic_tools = require('./magic_tools.js');
 
 var Script = process.binding('evals').NodeScript;
 var runInNewContext = Script.runInNewContext;
 
-// allow relative import
-//module.filename = path.resolve('run_magic');
+module.exports.eval = function(code, context) {
+  // %run magic
+  var res = magic_tools.code_match(code); 
+  if (!res) {
+    return;
+  }
+  var magic_cmd = res[0];
+  var args = res[1];
+  if (magic_cmd == '%run') {
+    module.exports.run(args[0], context);
+    return "Ran "+args[0];
+  }
+}
 
 module.exports.run = function(file, global_ns, callback) {
   /*
