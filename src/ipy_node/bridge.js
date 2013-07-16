@@ -24,8 +24,6 @@ var IPythonBridge = function(base_url, notebook_id, config) {
   self.kernel_ready = false;
   self.check_kernel();
   self.command_buffer = [];
-  self.window = window;
-  self.document = document;
 }
 
 IPythonBridge.prototype.check_kernel = function() {
