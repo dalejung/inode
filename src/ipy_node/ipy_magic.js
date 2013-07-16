@@ -1,6 +1,8 @@
-var magic_tools = require('../magic/magic_tools.js');
 var http = require('http');
 var Q = require('q');
+var fs = require('fs');
+
+var magic_tools = require('../magic/magic_tools.js');
 var ipy = require('./ipy_node.js')
 
 var LAST_DATA = null;
@@ -32,8 +34,12 @@ module.exports.eval = function(code, context) {
   }
 
   if (magic_cmd == '%attach') {
-    var kernel = parseInt(args[0]);
-    CURRENT_KERNEL = ipy.ipy_kernel("http://"+host+":"+port, "kernels");
+    var kernel = LAST_DATA[parseInt(args[0])];
+    CURRENT_KERNEL = ipy.ipy_kernel("http://"+host+":"+port, kernel['notebook_id']);
+    // add startup.py to ipython environ
+    var filename = require.resolve('./startup.py');
+    var content = fs.readFileSync(filename, 'utf8');
+    CURRENT_KERNEL.execute(content);
     return CURRENT_KERNEL;
   }
 

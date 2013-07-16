@@ -1,5 +1,3 @@
-
-
 handle_stuff = function(tag) {
   return function(content) {
     console.log(tag, content);
@@ -9,6 +7,7 @@ handle_stuff = function(tag) {
 handle_output = function (msg_type, content) {
   global.content = content
   console.log(msg_type)
+  console.log(Object.keys(content['data']))
 }
 
 module.exports.default_callbacks = {
