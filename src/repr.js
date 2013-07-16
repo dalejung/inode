@@ -15,5 +15,8 @@ module.exports.repr = function(obj, opts) {
   if (obj && isFunction(obj.__repr__)) {
     return obj.__repr__();
   }
+  if (obj && typeof(obj.__repr__) == 'string') {
+      return obj.__repr__;
+  }
   return default_writer(obj, opts);
 }
