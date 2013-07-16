@@ -30,16 +30,18 @@ module.exports.eval = function(code, context) {
       }
       console.log(out.join("\n"));
     });
-    return null;
+    return deferred;
   }
 
   if (magic_cmd == '%attach') {
     var kernel = LAST_DATA[parseInt(args[0])];
-    CURRENT_KERNEL = ipy.ipy_kernel("http://"+host+":"+port, kernel['notebook_id']);
+    var config = {'context':context};
+    CURRENT_KERNEL = ipy.ipy_kernel("http://"+host+":"+port, kernel['notebook_id'], config);
     // add startup.py to ipython environ
     var filename = require.resolve('./startup.py');
     var content = fs.readFileSync(filename, 'utf8');
     CURRENT_KERNEL.execute(content);
+    context.CURRENT_KERNEL = CURRENT_KERNEL;
     return CURRENT_KERNEL;
   }
 
