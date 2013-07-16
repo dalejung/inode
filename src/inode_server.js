@@ -5,7 +5,7 @@ var path = require('path')
 
 var repr = require('./repr.js').repr
 var run_magic = require('./magic/run_magic.js');
-var ipy_magic = require('./ipy_node/ipy_magic.js');
+var ipy_magic = require('./ipy_node/magic.js');
 
 // Keep track of repl kernels
 repl_kernels = {}
@@ -59,20 +59,25 @@ var default_callback = function() {
  */
 var port = 8889;
 var url = require("url");
-http.createServer(function(request, response) {
+http.createServer(function(request, res) {
   var uri = url.parse(request.url).pathname
     , filename = path.join(process.cwd(), uri);
 
+  var opts = {
+    'Access-Control-Allow-Origin': 'idale.local:8889',
+    "Access-Control-Allow-Headers": "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With", 
+    "Access-Control-Allow-Methods": "GET, PUT, POST"
+  };
   // Grab the internal dom for '/'
   if (uri == '/') {
-    return inode_base_handler(request, response)
+    return inode_base_handler(request, res)
   }
 
   fs.exists(filename, function(exists) {
     if(!exists) {
-      response.writeHead(404, {"Content-Type": "text/plain"});
-      response.write("404 Not Found\n");
-      response.end();
+      res.writeHead(404, {"Content-Type": "text/plain"});
+      res.write("404 Not Found\n");
+      res.end();
       return;
     }
 
@@ -80,15 +85,15 @@ http.createServer(function(request, response) {
 
     fs.readFile(filename, "binary", function(err, file) {
       if(err) {        
-        response.writeHead(500, {"Content-Type": "text/plain"});
-        response.write(err + "\n");
-        response.end();
+        res.writeHead(500, opts);
+        res.write(err + "\n");
+        res.end();
         return;
       }
 
-      response.writeHead(200);
-      response.write(file, "binary");
-      response.end();
+      res.writeHead(200, opts);
+      res.write(file, "binary");
+      res.end();
     });
   });
 }).listen(parseInt(port, 10));
@@ -98,7 +103,9 @@ function inode_base_handler(req, res) {
   // eventually have the ability for target /kernel_name
   var r = repl_kernels[Object.keys(repl_kernels)[0]]
 
-  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.writeHead(200, {
+                      'Content-Type': 'text/html', 
+                      'Access-Control-Allow-Origin' : '*'});
   if (r.context._http_callback) {
     html = r.context._http_callback();
   } else {
