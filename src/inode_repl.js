@@ -7,6 +7,7 @@ function InodeREPLServer(prompt, source, eval_, useGlobal, ignoreUndefined) {
 
   this.magics = [];
   this.eval = inode_eval;
+  this.inner_eval = inner_eval;
 }
 
 inherits(InodeREPLServer, repl.REPLServer);
@@ -14,6 +15,16 @@ exports.InodeREPLServer = InodeREPLServer;
 
 InodeREPLServer.prototype.install_magic = function(magic) {
   this.magics.push(magic);
+}
+
+InodeREPLServer.prototype.run = function(code) {
+    /*
+     * Run code as if it was placed in REPL input
+     */
+    // wrap code to mimic repl wrapped
+    code = '('+code+'\n)';
+    // skip inode_eval since we don't need callback handling
+    return this.inner_eval(code, this.context);      
 }
 
 function inner_eval(code, context, file) {
