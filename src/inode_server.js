@@ -5,6 +5,7 @@ var path = require('path')
 
 var repr = require('./repr.js').repr
 var run_magic = require('./magic/run_magic.js');
+var ipy_magic = require('./ipy_node/ipy_magic.js');
 
 // Keep track of repl kernels
 repl_kernels = {}
@@ -20,6 +21,7 @@ net.createServer(function (socket) {
   });
 
   r.install_magic(run_magic);
+  r.install_magic(ipy_magic);
 
   r.on('exit', function () {
     delete repl_kernels[r.name]
