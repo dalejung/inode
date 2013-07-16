@@ -49,6 +49,25 @@ module.exports.eval = function(code, context) {
     var code = args[0];
     return CURRENT_KERNEL.execute(code);
   }
+
+  if (magic_cmd == '%pull') {
+    var code = args[0];
+    code = "to_json("+code+")";
+    var deferred = CURRENT_KERNEL.execute(code);
+    handle_pull(args[0], deferred);
+    return null;
+  }
+}
+
+function handle_pull(name, deferred) {
+  deferred.then(function(data) {
+    var content = data.content;
+    var context = data.context;
+    var json = content['data']['application/json'];
+    if (json) {
+        context[name] = JSON.parse(json);
+    }
+  });
 }
 
 function active_kernels() {
