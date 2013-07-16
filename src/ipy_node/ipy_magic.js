@@ -47,8 +47,7 @@ module.exports.eval = function(code, context) {
 
   if (magic_cmd == '%ipy') {
     var code = args[0];
-    CURRENT_KERNEL.execute(code);
-    return true;
+    return CURRENT_KERNEL.execute(code);
   }
 }
 

@@ -13,7 +13,6 @@ handle_output = function (msg_type, content, metadata, context) {
   }
 }
 
-
 module.exports.callback_router = function (ctx) {
   callbacks = ['execute_reply', 'output', 'clear_output', 'set_next_input'];
   var self = ctx;
@@ -44,3 +43,30 @@ module.exports.default_callbacks = function(self) {
   'set_next_input': handle_stuff('setnext')
   }
 };
+
+module.exports.deferred_callback_router = function (ctx, deferred) {
+  var self = ctx;
+  var handlers = {}
+  handlers['output'] = defer_wrap(defer_output, ctx, deferred);
+  return handlers;
+}
+
+defer_output = function (msg_type, content, metadata, context, deferred) {
+  var data = {}
+  data['msg_type'] = msg_type
+  data['content'] = content
+  data['metadata'] = metadata
+  data['context'] = context
+  deferred.resolve(data);
+}
+
+defer_wrap = function (func, ctx, _deferred) {
+  var self = ctx;
+  var deferred = _deferred;
+  return function() {
+    var context = self.context;
+    [].push.call(arguments, context);
+    [].push.call(arguments, deferred);
+    return func.apply(self, arguments);
+  }
+}

@@ -1,6 +1,9 @@
+var Q = require('q');
+
 var IPython = require('./ipython').IPython
 var default_callbacks = require('./callbacks.js').default_callbacks
 var callback_router = require('./callbacks.js').callback_router
+var deferred_callback_router = require('./callbacks.js').deferred_callback_router
 
 module.exports.ipy_kernel = function (base_url, notebook_id, config) {
   return new IPythonBridge(base_url, notebook_id, config);
@@ -9,7 +12,6 @@ module.exports.ipy_kernel = function (base_url, notebook_id, config) {
 var IPythonBridge = function(base_url, notebook_id, config) {
   var self = this;
   if (config) {
-    var callbacks = config.callbacks
     var context = config.context
   }
 
@@ -24,10 +26,6 @@ var IPythonBridge = function(base_url, notebook_id, config) {
   self.command_buffer = [];
   self.window = window;
   self.document = document;
-
-  callbacks = callbacks ? callbacks : default_callbacks(self)
-  self.callbacks = callbacks
-  self.callback_router = callback_router(self);
 }
 
 IPythonBridge.prototype.check_kernel = function() {
@@ -40,19 +38,18 @@ IPythonBridge.prototype.check_kernel = function() {
   }
 }
 
-IPythonBridge.prototype._execute = function(code, callbacks) {
+IPythonBridge.prototype._execute = function(code, deferred) {
   var self = this;
-  return this.kernel.execute(code, self.callback_router, {'silent':false});
+  return this.kernel.execute(code, deferred_callback_router(self, deferred), {'silent':false});
 }
 
 IPythonBridge.prototype.execute = function(code, callbacks) {
-  if (this.kernel_ready) {
-    return this._execute(code, callbacks);
-  }
-  else {
-    this.command_buffer.push(code);      
-    this.execute_buffer();
-  }
+  // always push to buffer and htne try to execute. 
+  // took out immediate execution so everything goes through the same path
+  var deferred = Q.defer(); 
+  this.command_buffer.push([code, deferred]);      
+  this.execute_buffer();
+  return deferred.promise;
 }
 
 IPythonBridge.prototype.execute_buffer = function() {
@@ -62,8 +59,10 @@ IPythonBridge.prototype.execute_buffer = function() {
     return;
   }
   if (self.command_buffer.length > 0) {
-    var code = self.command_buffer.pop();
-    self.execute(code);
+    var command = self.command_buffer.pop();
+    var code = command[0];
+    var deferred = command[1];
+    self._execute(code, deferred);
   }
 }
 
