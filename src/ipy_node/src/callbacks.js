@@ -5,15 +5,15 @@ handle_stuff = function(tag) {
 }
 
 handle_output = function (msg_type, content, metadata, context) {
-  console.log(msg_type)
-  console.log(Object.keys(content['data']))
+  //console.log(msg_type)
+  //console.log(Object.keys(content['data']))
   var json = content['data']['application/json'];
   if (json) {
     context.content = JSON.parse(json);
   }
 }
 
-module.exports.callback_router = function (ctx) {
+callback_router = function (ctx) {
   callbacks = ['execute_reply', 'output', 'clear_output', 'set_next_input'];
   var self = ctx;
   var handlers = {}
@@ -35,7 +35,7 @@ function wrap_context(ctx, name) {
   return wrapped;
 }
 
-module.exports.default_callbacks = function(self) {
+default_callbacks = function(self) {
   return {
   'execute_reply': handle_stuff('exec'),
   'output': handle_output,
@@ -44,7 +44,7 @@ module.exports.default_callbacks = function(self) {
   }
 };
 
-module.exports.deferred_callback_router = function (ctx, deferred) {
+deferred_callback_router = function (ctx, deferred) {
   var self = ctx;
   var handlers = {}
   handlers['output'] = defer_wrap(defer_output, ctx, deferred);

@@ -1,14 +1,3 @@
-var Q = require('q');
-
-var IPython = require('./ipython').IPython
-var default_callbacks = require('./callbacks.js').default_callbacks
-var callback_router = require('./callbacks.js').callback_router
-var deferred_callback_router = require('./callbacks.js').deferred_callback_router
-
-module.exports.ipy_kernel = function (base_url, notebook_id, config) {
-  return new IPythonBridge(base_url, notebook_id, config);
-}
-
 var IPythonBridge = function(base_url, notebook_id, config) {
   var self = this;
   if (config) {

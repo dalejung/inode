@@ -9,26 +9,8 @@
  * Exports
  *  IPython
  */ 
-var Contextify = require('contextify');
 var fs = require('fs');
-
-IPYTHON_SCRIPTS = ['namespace.js', 'utils.js', 'kernel.js'];
-
-function import_ipython(context, scripts, base_dir) {
-  /*
-   * Run ipython scripts in Contextify context. 
-   * This is to support how IPython namespaces, 
-   * which requires shared global scope across scripts
-   */
-  base_dir = base_dir ? base_dir : process.env.IPYTHON_DIR
-
-  for (var i=0; i < scripts.length; i++) {
-    var script = base_dir + '/' +scripts[i];
-    var filename = require.resolve(script);
-    var content = fs.readFileSync(filename, 'utf8');
-    context.run(content);
-  }
-}
+var Contextify = require('contextify');
 
 /*
  * IPython requires the following externalities:
@@ -50,7 +32,10 @@ var sandbox = {
 };
 
 Contextify(sandbox);
-import_ipython(sandbox, IPYTHON_SCRIPTS);
-IPython = sandbox.IPython;
+// run the combined src scripts
+var filename = require.resolve('./ipy_node.js');
+var content = fs.readFileSync(filename, 'utf8');
+sandbox.run(content);
 
-module.exports.IPython = IPython
+module.exports.IPython = sandbox.IPython
+module.exports.IPythonBridge = sandbox.IPythonBridge

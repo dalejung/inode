@@ -3,7 +3,7 @@ var Q = require('q');
 var fs = require('fs');
 
 var magic_tools = require('../magic/magic_tools.js');
-var ipy = require('./ipy_node.js')
+var ipy = require('./index.js')
 
 var LAST_DATA = null;
 var CURRENT_KERNEL;
@@ -25,7 +25,7 @@ module.exports.eval = function(code, context) {
       var out = ["==== Active Kernels ===="];
       for (var i=0; i < data['files'].length; i++) {
         var file = data['files'][i];
-        var o = '['+i+'] '+ file['name'] + ' ' + file['kernel_id'];
+        var o = '['+i+'] '+ file['name'] + ' ' + file['notebook_id'];
         out.push(o);
       }
       console.log(out.join("\n"));
