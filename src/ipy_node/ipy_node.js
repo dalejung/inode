@@ -688,6 +688,10 @@ var IPythonBridge = function(base_url, notebook_id, config) {
   self.kernel_ready = false;
   self.check_kernel();
   self.command_buffer = [];
+
+  if (startup_python) {
+    self.execute(startup_python);
+  }
 }
 
 IPythonBridge.prototype.check_kernel = function() {
@@ -731,3 +735,4 @@ IPythonBridge.prototype.execute_buffer = function() {
 IPythonBridge.prototype.__repr__ = function() {
   return 'IPython Bridge \nbase_url='+this.base_url+"\nnotebook_id="+this.notebook_id;
 }
+var startup_python = "import pandas as pd\nfrom pandas import json\nfrom IPython.display import JSON\n\ndef dataframe_json(df):\n    data = {}\n    for k, v in df.iteritems():\n        data[k] = v.values\n    data['index'] = df.index\n    data['__repr__'] = repr(df)\n    return json.dumps(data)\n\ndef to_json(obj):\n    if isinstance(obj, pd.DataFrame):\n        return JSON(dataframe_json(obj))\n"

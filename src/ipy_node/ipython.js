@@ -39,3 +39,4 @@ sandbox.run(content);
 
 module.exports.IPython = sandbox.IPython
 module.exports.IPythonBridge = sandbox.IPythonBridge
+module.exports.sandbox = sandbox;

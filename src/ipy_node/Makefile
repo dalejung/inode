@@ -11,3 +11,4 @@ copy_ipycli:
 ipy_node.js: $(shell smash --list src/ipy_node.js)
 	@rm -f $@
 	smash src/ipy_node.js  > $@
+	@node ./startup.js >> $@
