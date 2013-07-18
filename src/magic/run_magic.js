@@ -42,7 +42,7 @@ module.exports.run = function(file, global_ns, callback) {
   }
 }
 
-module.exports.js_run = function(content, filename, global_ns) {
+var js_run = function(content, filename, global_ns) {
   var dirname = path.dirname(filename);
 
   var lines = content.split('\n');
@@ -72,6 +72,8 @@ module.exports.js_run = function(content, filename, global_ns) {
     global_ns[k] = sandbox[k];
   }
 }
+
+module.exports.js_run = js_run;
 
 function html_run(content, filename, global_ns, callback) {
 
