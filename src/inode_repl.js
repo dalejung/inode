@@ -1,6 +1,7 @@
 var repl = require('repl');
 var vm = require('vm')
 var inherits = require('util').inherits;
+var Q = require('q');
 
 function InodeREPLServer(prompt, source, eval_, useGlobal, ignoreUndefined) {
   repl.REPLServer.call(this, prompt, source, eval_, useGlobal, ignoreUndefined);
@@ -60,8 +61,21 @@ var inode_eval = function(code, context, file, cb) {
     process.domain.exit();
   }
   else {
-    cb(err, result);
+    if (Q.isPromise(result) && result.pause_repl) {
+      this.rli.pause();
+      result.then(function(data) {
+        cb(err, data);
+      }).catch(function(error) { cb(error, data)});
+    }
+    else 
+    {
+      cb(err, result);
+    }
   }
+
+  // save me obi-wan
+  var self = this;
+  setTimeout(function() {self.rli.resume()}, 5000);
 }
 
 exports.start = function(prompt, source, eval_, useGlobal, ignoreUndefined) {
