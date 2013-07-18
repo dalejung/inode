@@ -1,24 +1,15 @@
 var magic_tools = require('./magic_tools.js');
 var Q = require('q');
 var fs = require('fs');
-var inspect = require('util').inspect;
+var colorize = require('../util.js').colorize;
 
 var exec = require('child_process').exec;
 
 function exec_promise(cmd) { 
   var deferred = Q.defer()
-  exec(cmd, function(error, stdout, stderr){ console.log(stylizeWithColor(stdout, 'cyan')); deferred.resolve()});
+  exec(cmd, function(error, stdout, stderr){ console.log(colorize(stdout, 'cyan')); deferred.resolve()});
   deferred.promise.pause_repl = true;
   return deferred.promise;
-}
-
-function stylizeWithColor(str, style) {
-  if (style) {
-    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
-           '\u001b[' + inspect.colors[style][1] + 'm';
-  } else {
-    return str;
-  }
 }
 
 module.exports.eval = function(code, context) {

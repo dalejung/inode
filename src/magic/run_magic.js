@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var html = require('../html.js');
 var magic_tools = require('./magic_tools.js');
+var colorize = require('../util.js').colorize;
 
 var Script = process.binding('evals').NodeScript;
 var runInNewContext = Script.runInNewContext;
@@ -89,6 +90,14 @@ function html_run(content, filename, global_ns, callback) {
   html.window_vars(window, default_keys, function (changed) {
     for (var name in changed) {
       global_ns[name] = changed[name];
+    }
+    // output errors if they exist
+    if (typeof(document.errors) != 'undefined') {
+      for(var i=0; i < document.errors.length; i++) {
+        var err = document.errors[i];
+        var msg = err.data.error + '\n' + err['message'];
+        console.log(colorize(msg, 'red'));
+      }
     }
     if (callback) {
       callback();
