@@ -42,7 +42,7 @@ module.exports.run = function(file, global_ns, callback) {
   }
 }
 
-function js_run(content, filename, global_ns) {
+module.exports.js_run = function(content, filename, global_ns) {
   var dirname = path.dirname(filename);
 
   var lines = content.split('\n');

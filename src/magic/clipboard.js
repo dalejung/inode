@@ -1,8 +1,8 @@
 var magic_tools = require('./magic_tools.js');
+var js_run = require('./run_magic.js').js_run;
 var Q = require('q');
 
 module.exports.eval = function(code, context) {
-  // %run magic
   var res = magic_tools.code_match(code); 
   if (!res) {
     return;
@@ -27,7 +27,11 @@ module.exports.eval = function(code, context) {
           }
         }
     );
-    deferred.promise.pause_repl = true;
-    return deferred.promise;
+    var next = deferred.promise.then(function(code) {
+      // run entirity of code at once
+      js_run(code, null, context);
+    });
+    next.pause_repl = true;
+    return next;
   }
 }
