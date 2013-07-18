@@ -1,9 +1,4 @@
-var Q = require('q');
-
-var IPython = require('./ipython.js').IPython
-var IPythonBridge = require('./ipython.js').IPythonBridge
-
-module.exports.ipy_kernel = function (base_url, notebook_id, config) {
-  return new IPythonBridge(base_url, notebook_id, config);
-}
-
+var IPython = require('./lib/ipython.js');
+var Bridge = require('./lib/bridge.js');
+module.exports.IPython = IPython;
+module.exports.Bridge = require('./lib/bridge.js').Bridge;

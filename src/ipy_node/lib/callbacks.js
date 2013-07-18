@@ -1,10 +1,10 @@
-handle_stuff = function(tag) {
+var handle_stuff = function(tag) {
   return function(content) {
     console.log(tag, content);
   }
 }
 
-handle_output = function (msg_type, content, metadata, context) {
+var handle_output = function (msg_type, content, metadata, context) {
   //console.log(msg_type)
   //console.log(Object.keys(content['data']))
   var json = content['data']['application/json'];
@@ -13,7 +13,7 @@ handle_output = function (msg_type, content, metadata, context) {
   }
 }
 
-callback_router = function (ctx) {
+var callback_router = function (ctx) {
   callbacks = ['execute_reply', 'output', 'clear_output', 'set_next_input'];
   var self = ctx;
   var handlers = {}
@@ -35,7 +35,7 @@ function wrap_context(ctx, name) {
   return wrapped;
 }
 
-default_callbacks = function(self) {
+var default_callbacks = function(self) {
   return {
   'execute_reply': handle_stuff('exec'),
   'output': handle_output,
@@ -44,14 +44,14 @@ default_callbacks = function(self) {
   }
 };
 
-deferred_callback_router = function (ctx, deferred) {
+module.exports.deferred_callback_router = function (ctx, deferred) {
   var self = ctx;
   var handlers = {}
   handlers['output'] = defer_wrap(defer_output, ctx, deferred);
   return handlers;
 }
 
-defer_output = function (msg_type, content, metadata, context, deferred) {
+var defer_output = function (msg_type, content, metadata, context, deferred) {
   var data = {}
   data['msg_type'] = msg_type
   data['content'] = content
@@ -60,7 +60,7 @@ defer_output = function (msg_type, content, metadata, context, deferred) {
   deferred.resolve(data);
 }
 
-defer_wrap = function (func, ctx, _deferred) {
+var defer_wrap = function (func, ctx, _deferred) {
   var self = ctx;
   var deferred = _deferred;
   return function() {

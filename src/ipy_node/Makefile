@@ -4,11 +4,9 @@ GENERATED_FILES = \
 all: $(GENERATED_FILES)
 
 copy_ipycli:
-	@cp $(IPYTHON_DIR)/namespace.js src/ipycli/
-	@cp $(IPYTHON_DIR)/utils.js src/ipycli/
-	@cp $(IPYTHON_DIR)/kernel.js src/ipycli/
+	@cat $(IPYTHON_DIR)/namespace.js > lib/ipython-browser.js
+	@cat $(IPYTHON_DIR)/utils.js >> lib/ipython-browser.js
+	@cat $(IPYTHON_DIR)/kernel.js >> lib/ipython-browser.js
 
-ipy_node.js: $(shell smash --list src/ipy_node.js)
-	@rm -f $@
-	smash src/ipy_node.js  > $@
-	@node ./startup.js >> $@
+browserify:
+	@browserify --ig -t brfs index-browserify.js > ipy_node.js
