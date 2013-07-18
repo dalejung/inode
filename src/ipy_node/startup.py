@@ -13,3 +13,4 @@ def dataframe_json(df):
 def to_json(obj):
     if isinstance(obj, pd.DataFrame):
         return JSON(dataframe_json(obj))
+    return JSON(json.dumps(obj))
