@@ -1,11 +1,11 @@
 var jsdom = require('jsdom')
 var dual_xhr  = require("./xhr/dual_xhr.js");   
 
-module.exports.create_dom = function () {
+module.exports.create_dom = function (url) {
   /*
    * Setup a bare window ready for dom manipulations
    */
-  var document = jsdom.jsdom("<html><head></head><body></body></html>");
+  var document = jsdom.jsdom("<html><head></head><body></body></html>", null, {url:url});
   var window = document.createWindow()
 
   // Monkey-patch createRange support to JSDOM.
@@ -26,6 +26,7 @@ module.exports.create_dom = function () {
   // attach special xhr object
   window.XMLHttpRequest = dual_xhr.XMLHttpRequest;
 
+  window.console = global.console;
   return window
 }
 

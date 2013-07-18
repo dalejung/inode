@@ -52,7 +52,7 @@ var js_run = function(content, filename, global_ns) {
     var file = lines[0].split(' ')[1];
     var content = lines.slice(1).join('\n');
 
-    return module.exports.run(file, global_ns, function() {
+    module.exports.run(file, global_ns, function() {
       return js_run(content, filename, global_ns);
     });
   }
@@ -76,8 +76,7 @@ var js_run = function(content, filename, global_ns) {
 module.exports.js_run = js_run;
 
 function html_run(content, filename, global_ns, callback) {
-
-  var window = html.create_dom();
+  var window = html.create_dom(filename);
   var document = window.document
   // get attrs of empty window
   var default_keys = {}
