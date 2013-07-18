@@ -13,12 +13,14 @@ module.exports.eval = function(code, context) {
   var magic_cmd = res[0];
   var args = res[1];
   if (magic_cmd == '%ipy_bridge') {
-    CURRENT_BRIDGE = ipy.Bridge(args[0]);
+    CURRENT_BRIDGE = new ipy.Bridge(args[0]);
+    context.CURRENT_BRIDGE = CURRENT_BRIDGE;
     return CURRENT_BRIDGE;
   }
 
   if (magic_cmd == '%ipy_list') {
     CURRENT_BRIDGE.list_kernels();
+    return null;
   }
 
   if (magic_cmd == '%attach') {

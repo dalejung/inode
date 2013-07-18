@@ -23,6 +23,7 @@ Bridge.prototype.active_kernels = function () {
     path: '/active_notebooks'
   };
 
+  var self = this;    
   callback = function(response) {
     var str = '';
     //another chunk of data has been recieved, so append it to `str`
@@ -32,6 +33,7 @@ Bridge.prototype.active_kernels = function () {
     //the whole response has been recieved, so we just print it out here
     response.on('end', function () {
       var data = JSON.parse(str);
+      self.last_kernels = data['files'];
       deferred.resolve(data);
     });
   }
@@ -56,7 +58,7 @@ Bridge.prototype.list_kernels = function() {
 Bridge.prototype.attach = function(index, context) {
     var kernel = this.last_kernels[parseInt(index)];
     var config = {'context':context};
-    return this.start_kernel(this.base_url, kernel['notebook_id'], config);
+    return this.start_kernel(kernel['notebook_id'], config);
 };
 
 
