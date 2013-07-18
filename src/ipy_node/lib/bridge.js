@@ -41,8 +41,9 @@ Bridge.prototype.active_kernels = function () {
   return deferred.promise;
 }
 
-Bridge.prototype.list_kernels = function() {
+Bridge.prototype._list_kernels = function() {
   var deferred = this.active_kernels();
+  var list_deferred = Q.defer();
   deferred.then(function(data) {
     LAST_DATA = data['files'];
     var out = ["==== Active Kernels ===="];
@@ -51,9 +52,17 @@ Bridge.prototype.list_kernels = function() {
       var o = '['+i+'] '+ file['name'] + ' ' + file['notebook_id'];
       out.push(o);
     }
-    console.log(out.join("\n"));
+    list_deferred.resolve(out.join("\n"));
   });
-  return deferred;
+  return list_deferred.promise;
+};
+
+Bridge.prototype.list_kernels = function() {
+  var deferred = this._list_kernels();
+  var next = deferred.then(function(out) {
+    console.log(out);
+  });
+  return next;
 };
 
 Bridge.prototype.attach = function(index, context) {

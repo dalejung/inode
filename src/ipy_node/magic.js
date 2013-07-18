@@ -19,7 +19,9 @@ module.exports.eval = function(code, context) {
   }
 
   if (magic_cmd == '%ipy_list') {
-    var deferred = CURRENT_BRIDGE.list_kernels();
+    var deferred = CURRENT_BRIDGE._list_kernels();
+    deferred.pause_repl = true;
+    return deferred;
   }
 
   if (magic_cmd == '%attach') {
