@@ -81,6 +81,7 @@ Kernel.prototype.pull = function(name) {
     }
     pull_deferred.reject(new Error('did not get json back'));
   });
+  pull_deferred.promise.pause_repl = true;
   return pull_deferred.promise;
 }
 

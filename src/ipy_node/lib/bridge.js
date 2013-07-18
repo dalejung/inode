@@ -53,6 +53,7 @@ Bridge.prototype.list_kernels = function() {
     }
     console.log(out.join("\n"));
   });
+  return deferred;
 };
 
 Bridge.prototype.attach = function(index, context) {

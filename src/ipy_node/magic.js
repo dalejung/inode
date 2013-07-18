@@ -19,8 +19,7 @@ module.exports.eval = function(code, context) {
   }
 
   if (magic_cmd == '%ipy_list') {
-    CURRENT_BRIDGE.list_kernels();
-    return null;
+    var deferred = CURRENT_BRIDGE.list_kernels();
   }
 
   if (magic_cmd == '%attach') {
@@ -36,7 +35,6 @@ module.exports.eval = function(code, context) {
 
   if (magic_cmd == '%pull') {
     var name = args[0];
-    CURRENT_KERNEL.pull(name);
-    return null;
+    return CURRENT_KERNEL.pull(name);
   }
 }
