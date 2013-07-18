@@ -1,15 +1,9 @@
-var http = require('http');
-var Q = require('q');
-var fs = require('fs');
-
 var magic_tools = require('../magic/magic_tools.js');
 var ipy = require('./index.js')
 
 var LAST_DATA = null;
 var CURRENT_KERNEL;
-
-var host = 'idale.local';
-var port = 8888;
+var CURRENT_BRIDGE;
 
 module.exports.eval = function(code, context) {
   var res = magic_tools.code_match(code); 
@@ -18,29 +12,17 @@ module.exports.eval = function(code, context) {
   }
   var magic_cmd = res[0];
   var args = res[1];
+  if (magic_cmd == '%ipy_bridge') {
+    CURRENT_BRIDGE = ipy.Bridge(args[0]);
+    return CURRENT_BRIDGE;
+  }
+
   if (magic_cmd == '%ipy_list') {
-    var deferred = active_kernels();
-    deferred.then(function(data) {
-      LAST_DATA = data['files'];
-      var out = ["==== Active Kernels ===="];
-      for (var i=0; i < data['files'].length; i++) {
-        var file = data['files'][i];
-        var o = '['+i+'] '+ file['name'] + ' ' + file['notebook_id'];
-        out.push(o);
-      }
-      console.log(out.join("\n"));
-    });
-    return deferred;
+    CURRENT_BRIDGE.list_kernels();
   }
 
   if (magic_cmd == '%attach') {
-    var kernel = LAST_DATA[parseInt(args[0])];
-    var config = {'context':context};
-    CURRENT_KERNEL = ipy.ipy_kernel("http://"+host+":"+port, kernel['notebook_id'], config);
-    // add startup.py to ipython environ
-    var filename = require.resolve('./startup.py');
-    var content = fs.readFileSync(filename, 'utf8');
-    CURRENT_KERNEL.execute(content);
+    CURRENT_KERNEL = CURRENT_BRIDGE.attach(args[0], context);
     context.CURRENT_KERNEL = CURRENT_KERNEL;
     return CURRENT_KERNEL;
   }
@@ -51,45 +33,8 @@ module.exports.eval = function(code, context) {
   }
 
   if (magic_cmd == '%pull') {
-    var code = args[0];
-    code = "to_json("+code+")";
-    var deferred = CURRENT_KERNEL.execute(code);
-    handle_pull(args[0], deferred);
+    var name = args[0];
+    CURRENT_KERNEL.pull(name);
     return null;
   }
-}
-
-function handle_pull(name, deferred) {
-  deferred.then(function(data) {
-    var content = data.content;
-    var context = data.context;
-    var json = content['data']['application/json'];
-    if (json) {
-        context[name] = JSON.parse(json);
-    }
-  });
-}
-
-function active_kernels() {
-  var deferred = Q.defer();
-  var options = {
-    host: host,
-    port: port, 
-    path: '/active_notebooks'
-  };
-
-  callback = function(response) {
-    var str = '';
-    //another chunk of data has been recieved, so append it to `str`
-    response.on('data', function (chunk) {
-      str += chunk;
-    });
-    //the whole response has been recieved, so we just print it out here
-    response.on('end', function () {
-      var data = JSON.parse(str);
-      deferred.resolve(data);
-    });
-  }
-  http.request(options, callback).end();
-  return deferred.promise;
 }
