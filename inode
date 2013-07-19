@@ -1,7 +1,0 @@
-#!/bin/sh
-SCRIPTPATH=$(dirname $0)
-node $SCRIPTPATH/lib/inode_server.js  &
-sleep 1
-node $SCRIPTPATH/lib/inode_client.js
-# kill background node
-trap 'kill $(jobs -pr)' SIGINT SIGTERM EXIT

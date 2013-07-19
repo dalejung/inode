@@ -1,4 +1,9 @@
 {
   "name": "inode", 
-  "main": "./lib/inode.js"
+  "main": "./lib/inode.js",
+  "bin": {
+  "inode": "bin/cmd.js",
+  "inode-server": "bin/server.js",
+  "inode-client": "bin/client.js"
+  }
 }
