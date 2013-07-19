@@ -7,7 +7,7 @@ var deferred_callback_router = require('./callbacks.js').deferred_callback_route
 
 var Kernel = function(base_url, notebook_id, config) {
   if (config) {
-    var context = config.context
+    var context = config.context;
   }
 
   if (!context) {
@@ -17,23 +17,35 @@ var Kernel = function(base_url, notebook_id, config) {
 
   this.base_url = base_url;
   this.notebook_id = notebook_id;
-  this.kernel = new IPython.Kernel(base_url, 'kernels');
-  this.kernel.start(notebook_id);
+  this.kernel = null;
   this.kernel_ready = false;
-  this.check_kernel();
   this.command_buffer = [];
+}
+
+Kernel.prototype.start = function() {
+  var deferred = Q.defer();
+  var self = this;
+  this.kernel = new IPython.Kernel(this.base_url, 'kernels');
+  this.kernel.start(this.notebook_id);
+  this.check_kernel(function() {
+    deferred.resolve(self);
+  });
 
   if (typeof(startup_python) !== 'undefined') {
     this.execute(startup_python);
   }
-}
+  return deferred.promise;
+};
 
-Kernel.prototype.check_kernel = function() {
+Kernel.prototype.check_kernel = function(callback) {
   var self = this;
   if (!self.kernel.shell_channel) {
-    setTimeout(function() { self.check_kernel(); }, 100);
+    setTimeout(function() { self.check_kernel(callback); }, 100);
   } 
   else {
+    if (callback) {
+      callback();
+    }
     self.kernel_ready = true;
   }
 }

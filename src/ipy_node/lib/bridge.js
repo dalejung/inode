@@ -11,8 +11,16 @@ var Bridge = function(base_url) {
   this.last_kernels;
 };
 
+Bridge.prototype.get_kernel = function(notebook_id, config) {
+  var kernel = new Kernel(this.base_url, notebook_id, config);
+  return kernel;
+}
+
 Bridge.prototype.start_kernel = function(notebook_id, config) {
-  return new Kernel(this.base_url, notebook_id, config);
+  var kernel = this.get_kernel(notebook_id, config);
+  var promise = kernel.start();
+  kernel.promise = promise;
+  return kernel;
 };
 
 Bridge.prototype.active_kernels = function () {
@@ -24,7 +32,7 @@ Bridge.prototype.active_kernels = function () {
   };
 
   var self = this;    
-  callback = function(response) {
+  var callback = function(response) {
     var str = '';
     //another chunk of data has been recieved, so append it to `str`
     response.on('data', function (chunk) {
