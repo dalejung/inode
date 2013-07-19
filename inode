@@ -1,7 +1,7 @@
 #!/bin/sh
 SCRIPTPATH=$(dirname $0)
-node $SCRIPTPATH/src/inode_server.js  &
+node $SCRIPTPATH/lib/inode_server.js  &
 sleep 1
-node $SCRIPTPATH/src/inode_client.js
+node $SCRIPTPATH/lib/inode_client.js
 # kill background node
 trap 'kill $(jobs -pr)' SIGINT SIGTERM EXIT
