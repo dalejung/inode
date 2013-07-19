@@ -1,0 +1,4 @@
+{
+  "name": "inode", 
+  "main": "./lib/inode.js"
+}
