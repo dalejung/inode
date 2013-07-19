@@ -7,7 +7,7 @@ var path = require('path')
 var repr = require('./repr.js').repr
 var run_magic = require('./magic/run_magic.js');
 var clipboard_magic = require('./magic/clipboard.js');
-var ipy_magic = require('./ipy_node/magic.js');
+var ipy_magic = require('ipy_node').magic;
 var io_magic = require('./magic/io_magic.js');
 
 
