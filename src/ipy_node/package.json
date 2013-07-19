@@ -1,7 +1,0 @@
-{
-  "name" : "ipy_node", 
-  "main" : "index.js",
-  "browser" :  {
-    "./lib/ipython.js" : "./lib/ipython-browserify.js"
-  }
-}
