@@ -47,6 +47,12 @@ var xAxis = d3.svg.axis().scale(x).orient("bottom"),
     xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
     yAxis = d3.svg.axis().scale(y).orient("left");
 
+function brushed() {
+  x.domain(brush.empty() ? x2.domain() : brush.extent());
+  focus.select("path").attr("d", area);
+  focus.select(".x.axis").call(xAxis);
+}
+
 var brush = d3.svg.brush()
     .x(x2)
     .on("brush", brushed);
@@ -120,12 +126,6 @@ d3.csv("sp500.csv", function(error, data) {
       .attr("y", -6)
       .attr("height", height2 + 7);
 });
-
-function brushed() {
-  x.domain(brush.empty() ? x2.domain() : brush.extent());
-  focus.select("path").attr("d", area);
-  focus.select(".x.axis").call(xAxis);
-}
 
 </script>
 </body>
