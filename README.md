@@ -1,3 +1,7 @@
+## Notice **09-15-14** 
+
+In the process of refactoring and fixing up the package to be more in line with npm
+
 Interactive Node.js
 -------------------
 
