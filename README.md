@@ -1,3 +1,7 @@
+# NOTICE 12-27-14
+
+So I renamed this project `choir`. `inode` was already taken in npm. [Choir](https://github.com/dalejung/choir)
+
 Interactive Node.js
 -------------------
 
